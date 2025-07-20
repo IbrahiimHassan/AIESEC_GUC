@@ -69,7 +69,8 @@ card_data = {
     "PREMIUM": [],
     "APPLICANTS": [],
     "DURATION": [],
-    "ORGANIZATION": []
+    "ORGANIZATION": [],
+    "COUNTRY":[]
 }
 
 for a in soup.find_all("a", href=True):
@@ -86,12 +87,16 @@ for a in soup.find_all("a", href=True):
     premium = "Yes" if "Premium" in a.get_text() else "No"
 
     duration = "N/A"
+    country = "N/A"
     duration_block = a.find("div", class_="flex flex-row items-center text-grey-dark text-[14px] flex-wrap")
     if duration_block:
         spans = duration_block.find_all("span")
         if spans and len(spans) >= 2:
             last = spans[-1].get_text(strip=True)
+            first = spans[0].get_text(strip=True) 
+            first = first.split[','][-1]
             duration = last if last != "." else "N/A"
+            country = country if country != "." else "N/A"
 
     applicants = "N/A"
     for div in a.find_all("div", class_="text-[12px]"):
@@ -105,11 +110,14 @@ for a in soup.find_all("a", href=True):
 
     card_data["OPPORTUNITY ID"].append(opp_id)
     card_data["OPPORTUNITY LINK"].append(full_link)
+    card_data["COUNTRY"].append(country)
     card_data["TITLE"].append(title)
     card_data["PREMIUM"].append(premium)
     card_data["APPLICANTS"].append(applicants)
     card_data["DURATION"].append(duration)
     card_data["ORGANIZATION"].append(organization)
+    
+
 
 # Step 5: Save all data to Today.xlsx
 df_today = pd.DataFrame(card_data)
