@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with: 
+          ref: Sakr
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -31,3 +33,15 @@ jobs:
 
       - name: Run scraper
         run: python aiesec.py
+      - name: Commit and push updated Excel files with datetime message
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add *.xlsx
+          if git diff --cached --quiet; then
+            echo "No changes in Excel files to commit."
+          else
+            COMMIT_MSG="Update Excel files after daily scrape - $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+            git commit -m "$COMMIT_MSG"
+            git push origin Sakr
+          fi
