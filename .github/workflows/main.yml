@@ -24,4 +24,4 @@ jobs:
           pip install selenium beautifulsoup4 pandas openpyxl lxml
 
       - name: Run scraper
-        run: aiesec.py
+        run: python aiesec.py
