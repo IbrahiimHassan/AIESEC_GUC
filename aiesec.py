@@ -1,6 +1,8 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
@@ -13,8 +15,17 @@ from openpyxl.utils import get_column_letter
 
 # Setup Chrome
 options = Options()
-# options.add_argument("--headless")  # Enable if you don't want browser UI
-driver = webdriver.Chrome(options=options)
+options.add_argument("--headless")
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--disable-gpu")
+options.add_argument("--user-data-dir=/tmp/chrome")
+
+options.binary_location = "/usr/bin/chromium-browser"
+
+service = Service("/usr/local/bin/chromedriver")
+
+driver = webdriver.Chrome(service=service, options=options)
 wait = WebDriverWait(driver, 20)
 
 # Step 1: Open the AIESEC GTA page
@@ -58,7 +69,8 @@ card_data = {
     "PREMIUM": [],
     "APPLICANTS": [],
     "DURATION": [],
-    "ORGANIZATION": []
+    "ORGANIZATION": [],
+    
 }
 
 for a in soup.find_all("a", href=True):
@@ -99,6 +111,8 @@ for a in soup.find_all("a", href=True):
     card_data["APPLICANTS"].append(applicants)
     card_data["DURATION"].append(duration)
     card_data["ORGANIZATION"].append(organization)
+    
+
 
 # Step 5: Save all data to Today.xlsx
 df_today = pd.DataFrame(card_data)
