@@ -17,10 +17,13 @@ options.add_argument("--headless")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
-options.add_argument("--user-data-dir=/tmp/chrome")  
-driver = webdriver.Chrome(options=options)
-# options.add_argument("--headless")  # Enable if you don't want browser UI
-driver = webdriver.Chrome(options=options)
+options.add_argument("--user-data-dir=/tmp/chrome")
+
+options.binary_location = "/usr/bin/chromium-browser"
+
+service = Service("/usr/local/bin/chromedriver")
+
+driver = webdriver.Chrome(service=service, options=options)
 wait = WebDriverWait(driver, 20)
 
 # Step 1: Open the AIESEC GTA page
