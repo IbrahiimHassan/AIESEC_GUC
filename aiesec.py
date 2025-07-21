@@ -66,6 +66,7 @@ card_data = {
     "OPPORTUNITY ID": [],
     "OPPORTUNITY LINK": [],
     "TITLE": [],
+    "COUNTRY": [],
     "PREMIUM": [],
     "APPLICANTS": [],
     "DURATION": [],
@@ -86,13 +87,17 @@ for a in soup.find_all("a", href=True):
 
     premium = "Yes" if "Premium" in a.get_text() else "No"
 
+    country = "N/A"
     duration = "N/A"
     duration_block = a.find("div", class_="flex flex-row items-center text-grey-dark text-[14px] flex-wrap")
     if duration_block:
         spans = duration_block.find_all("span")
         if spans and len(spans) >= 2:
-            last = spans[-1].get_text(strip=True)
-            duration = last if last != "." else "N/A"
+            country = spans[0].get_text(strip=True)
+            duration = spans[-1].get_text(strip=True)
+            if duration == ".":
+                duration = "N/A"
+
 
     applicants = "N/A"
     for div in a.find_all("div", class_="text-[12px]"):
@@ -107,6 +112,7 @@ for a in soup.find_all("a", href=True):
     card_data["OPPORTUNITY ID"].append(opp_id)
     card_data["OPPORTUNITY LINK"].append(full_link)
     card_data["TITLE"].append(title)
+    card_data["COUNTRY"].append(country)
     card_data["PREMIUM"].append(premium)
     card_data["APPLICANTS"].append(applicants)
     card_data["DURATION"].append(duration)
@@ -116,6 +122,7 @@ for a in soup.find_all("a", href=True):
 
 # Step 5: Save all data to Today.xlsx
 df_today = pd.DataFrame(card_data)
+df_today = df_today[["OPPORTUNITY ID", "OPPORTUNITY LINK", "TITLE", "COUNTRY", "PREMIUM", "APPLICANTS", "DURATION", "ORGANIZATION"]]
 df_today.to_excel("Today.xlsx", index=False)
 print(f"Total opportunities available today: {len(df_today)}")
 
@@ -128,7 +135,7 @@ df_today["OPPORTUNITY ID"] = df_today["OPPORTUNITY ID"].astype(str)
 df_yesterday["OPPORTUNITY ID"] = df_yesterday["OPPORTUNITY ID"].astype(str)
 
 new_df = df_today[~df_today["OPPORTUNITY ID"].isin(df_yesterday["OPPORTUNITY ID"])]
-
+new_df = new_df[["OPPORTUNITY ID", "OPPORTUNITY LINK", "TITLE", "COUNTRY", "PREMIUM", "APPLICANTS", "DURATION", "ORGANIZATION"]]
 new_df.to_excel("New.xlsx", index=False)
 
 # Step 7: Format New.xlsx
