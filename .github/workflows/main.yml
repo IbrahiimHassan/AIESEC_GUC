@@ -4,7 +4,8 @@ on:
   schedule:
     - cron: '55 2 * * *'  # Runs every day at 5:00 AM UTC
   workflow_dispatch:      # Allows manual trigger in GitHub UI
-
+permissions:
+  contents: write
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
