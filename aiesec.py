@@ -12,6 +12,8 @@ import time
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill, Font
 from openpyxl.utils import get_column_letter
+import smtplib
+from email.message import EmailMessage
 
 # Setup Chrome
 options = Options()
@@ -178,3 +180,31 @@ wb.save("New.xlsx")
 
 # Step 8: Print result
 print(f"Saved {len(new_df)} new opportunities to New.xlsx")
+
+if len(new_df) > 0:
+    msg = EmailMessage()
+    msg["Subject"] = "New AIESEC Opportunities Available"
+    msg["From"] = "ogta.aiesecguc@gmail.com" 
+    msg["To"] = ["ibrahiim.hassan.04@gmail.com", "ahmed.sameh7433@gmail.com"]
+    msg.set_content(
+        f"Hello,\n\nThere are {len(new_df)} new opportunities listed in the attached file.\n\nRegards,\nAutomated Script"
+    )
+
+    # Attach the file
+    with open("New.xlsx", "rb") as f:
+        msg.add_attachment(
+            f.read(),
+            maintype="application",
+            subtype="vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            filename="New.xlsx"
+        )
+
+    # Send using Gmail SMTP
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+        smtp.login("ogta.aiesecguc@gmail.com", "shsxmqvthntfvlrk")
+        smtp.send_message(msg)
+
+    print("Email sent successfully.")
+else:
+    print("No new data found. Email not sent.")
+
