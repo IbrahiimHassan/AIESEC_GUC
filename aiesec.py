@@ -14,7 +14,9 @@ from openpyxl.styles import PatternFill, Font
 from openpyxl.utils import get_column_letter
 import smtplib
 from email.message import EmailMessage
-
+# Making the excel of yesterday up-to=date
+import shutil
+shutil.copy("Today.xlsx", "Yesterday.xlsx")
 # Setup Chrome
 options = Options()
 options.add_argument("--headless")
