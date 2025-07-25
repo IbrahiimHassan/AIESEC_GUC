@@ -14,6 +14,8 @@ from openpyxl.styles import PatternFill, Font
 from openpyxl.utils import get_column_letter
 import smtplib
 from email.message import EmailMessage
+from email.utils import make_msgid
+
 # Making the excel of yesterday up-to=date
 import shutil
 shutil.copy("Today.xlsx", "Yesterday.xlsx")
@@ -183,30 +185,137 @@ wb.save("New.xlsx")
 # Step 8: Print result
 print(f"Saved {len(new_df)} new opportunities to New.xlsx")
 
+def generate_card_html(row):
+    premium = row["PREMIUM"] == "Yes"
+    badge_html = (
+        '<div class="badge">PREMIUM</div>'
+        if premium else "<div></div>"
+    )
+    return f"""
+    <a class="card" href="{row['OPPORTUNITY LINK']}" target="_blank">
+        <div class="card-header">
+            {badge_html}
+            <div class="applicants"><i class="fas fa-users"></i> {row['APPLICANTS']}</div>
+        </div>
+        <div class="title">{row['TITLE']}</div>
+        <div class="org">{row['ORGANIZATION']}</div>
+        <div class="info">
+            <div><i class="fas fa-globe"></i>{row['COUNTRY']}</div>
+            <div><i class="fas fa-clock"></i>{row['DURATION']}</div>
+        </div>
+        <div class="cta">Click to View Opportunity →</div>
+    </a>
+    """
+
+# Generate full email HTML
+cards_html = "\n".join([generate_card_html(row) for _, row in new_df.iterrows()])
+
+html_body = f"""
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>New AIESEC Opportunities</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {{
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      justify-content: center;
+    }}
+    a.card {{
+      background-color: #ffffff;
+      border: 1px solid #e5e5e5;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      width: 280px;
+      padding: 1.2rem;
+      text-decoration: none;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }}
+    .card-header {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }}
+    .badge {{
+      background: linear-gradient(to right, #d4af37, #ffd700);
+      color: #fff;
+      font-size: 0.65rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.2);
+    }}
+    .applicants {{
+      font-size: 0.8rem;
+      color: #555;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }}
+    .title {{
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-top: 0.2rem;
+      color: #111;
+    }}
+    .org {{
+      font-size: 0.9rem;
+      color: #777;
+      margin-bottom: 0.5rem;
+    }}
+    .info {{
+      font-size: 0.85rem;
+      line-height: 1.4;
+      color: #444;
+    }}
+    .info i {{
+      margin-right: 6px;
+      color: #777;
+      width: 16px;
+      text-align: center;
+    }}
+    .cta {{
+      margin-top: auto;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #1e3c72;
+      border-top: 1px solid #eee;
+      padding-top: 0.6rem;
+    }}
+  </style>
+</head>
+<body>
+{cards_html}
+</body>
+</html>
+"""
+
+# Step 8 – Send the HTML email instead of attachment
 if len(new_df) > 0:
     msg = EmailMessage()
     msg["Subject"] = "New AIESEC Opportunities Available"
-    msg["From"] = "ogta.aiesecguc@gmail.com" 
+    msg["From"] = "ogta.aiesecguc@gmail.com"
     msg["To"] = ["ibrahiim.hassan.04@gmail.com", "ahmed.sameh7433@gmail.com"]
-    msg.set_content(
-        f"Hello,\n\nThere are {len(new_df)} new opportunities listed in the attached file.\n\nRegards,\nAutomated Script"
-    )
 
-    # Attach the file
-    with open("New.xlsx", "rb") as f:
-        msg.add_attachment(
-            f.read(),
-            maintype="application",
-            subtype="vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            filename="New.xlsx"
-        )
+    msg.set_content("There are new opportunities. Please view in HTML format.")
+    msg.add_alternative(html_body, subtype='html')
 
-    # Send using Gmail SMTP
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login("ogta.aiesecguc@gmail.com", "shsxmqvthntfvlrk")
         smtp.send_message(msg)
 
-    print("Email sent successfully.")
+    print("Email with HTML cards sent successfully.")
 else:
     print("No new data found. Email not sent.")
-
