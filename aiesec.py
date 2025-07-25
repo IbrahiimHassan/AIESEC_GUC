@@ -187,25 +187,33 @@ print(f"Saved {len(new_df)} new opportunities to New.xlsx")
 
 def generate_card_html(row):
     premium = row["PREMIUM"] == "Yes"
-    badge_html = (
-        '<div class="badge">PREMIUM</div>'
-        if premium else "<div></div>"
+    premium_html = (
+        '<div style="background-color: #FFD700; color: white; font-size: 0.65rem; padding: 4px 10px; '
+        'border-radius: 20px; font-weight: bold; text-transform: uppercase;">PREMIUM</div>'
+        if premium else ""
     )
     return f"""
-    <a class="card" href="{row['OPPORTUNITY LINK']}" target="_blank">
-        <div class="card-header">
-            {badge_html}
-            <div class="applicants"><i class="fas fa-users"></i> {row['APPLICANTS']}</div>
+    <div style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+                padding: 16px; width: 300px; font-family: 'Segoe UI', sans-serif; display: inline-block;
+                margin: 10px; vertical-align: top;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            {premium_html}
+            <div style="font-size: 0.85rem; color: #6c63ff;">👥 {row['APPLICANTS']}</div>
         </div>
-        <div class="title">{row['TITLE']}</div>
-        <div class="org">{row['ORGANIZATION']}</div>
-        <div class="info">
-            <div><i class="fas fa-globe"></i>{row['COUNTRY']}</div>
-            <div><i class="fas fa-clock"></i>{row['DURATION']}</div>
+        <div style="font-weight: bold; font-size: 1.1rem; margin-top: 10px; color: #111;">{row['TITLE']}</div>
+        <div style="color: #777; font-size: 0.9rem; margin-bottom: 6px;">{row['ORGANIZATION']}</div>
+        <div style="font-size: 0.85rem; color: #444; line-height: 1.6;">
+            🌍 {row['COUNTRY']}<br>
+            ⏳ {row['DURATION']}
         </div>
-        <div class="cta">Click to View Opportunity →</div>
-    </a>
+        <div style="margin-top: 12px; border-top: 1px solid #eee; padding-top: 10px;">
+            <a href="{row['OPPORTUNITY LINK']}" style="text-decoration: none; color: #1e3c72; font-weight: bold; font-size: 0.85rem;">
+                Click to View Opportunity →
+            </a>
+        </div>
+    </div>
     """
+
 
 # Generate full email HTML
 cards_html = "\n".join([generate_card_html(row) for _, row in new_df.iterrows()])
@@ -217,84 +225,6 @@ html_body = f"""
   <meta charset="UTF-8">
   <title>New AIESEC Opportunities</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <style>
-    body {{
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-      margin: 0;
-      padding: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.2rem;
-      justify-content: center;
-    }}
-    a.card {{
-      background-color: #ffffff;
-      border: 1px solid #e5e5e5;
-      border-radius: 14px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      width: 280px;
-      padding: 1.2rem;
-      text-decoration: none;
-      color: #222;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }}
-    .card-header {{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }}
-    .badge {{
-      background: linear-gradient(to right, #d4af37, #ffd700);
-      color: #fff;
-      font-size: 0.65rem;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      box-shadow: 0 0 4px rgba(0,0,0,0.2);
-    }}
-    .applicants {{
-      font-size: 0.8rem;
-      color: #555;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }}
-    .title {{
-      font-size: 1.15rem;
-      font-weight: 700;
-      margin-top: 0.2rem;
-      color: #111;
-    }}
-    .org {{
-      font-size: 0.9rem;
-      color: #777;
-      margin-bottom: 0.5rem;
-    }}
-    .info {{
-      font-size: 0.85rem;
-      line-height: 1.4;
-      color: #444;
-    }}
-    .info i {{
-      margin-right: 6px;
-      color: #777;
-      width: 16px;
-      text-align: center;
-    }}
-    .cta {{
-      margin-top: auto;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #1e3c72;
-      border-top: 1px solid #eee;
-      padding-top: 0.6rem;
-    }}
-  </style>
 </head>
 <body>
 {cards_html}
