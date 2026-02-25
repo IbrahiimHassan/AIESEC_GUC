@@ -237,7 +237,7 @@ if len(new_df) > 0:
     msg = EmailMessage()
     msg["Subject"] = "New AIESEC Opportunities Available"
     msg["From"] = "ogta.aiesecguc@gmail.com"
-    msg["To"] = ["ibrahiim.hassan.04@gmail.com", "ahmed.sameh7433@gmail.com"]
+    msg["To"] = ["ibrahiim.hassan.04@gmail.com", "loma04@aiesec.net", "mohamed.wmahdi@gmail.com"]
 
     msg.set_content("There are new opportunities. Please view in HTML format.")
     msg.add_alternative(html_body, subtype='html')
